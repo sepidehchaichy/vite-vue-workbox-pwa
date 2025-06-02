@@ -26,7 +26,43 @@ export default defineConfig({
     injectManifest: {
       globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
     },
-
+       workbox: {
+      cleanupOutdatedCaches: true,
+          runtimeCaching: [
+           {
+                urlPattern: ({ request }) => request.destination === 'script',
+                handler: 'StaleWhileRevalidate',
+                options: {
+                  cacheName: 'js-cache',
+                  expiration: {
+                    maxEntries: 50,
+                    maxAgeSeconds: 60 * 60 * 24 * 7, // 7 روز
+                  },
+                },
+              },                      
+            {
+                urlPattern: /\/assets\/.*\.svg(\?.*)?$/,
+                handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'svg-cache',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 30 * 24 * 60 * 60,
+                },
+              },
+            },  {
+    urlPattern: ({ request }) => request.destination === 'style',
+    handler: 'StaleWhileRevalidate',
+    options: {
+      cacheName: 'css-cache',
+      expiration: {
+        maxEntries: 50,
+        maxAgeSeconds: 60 * 60 * 24 * 7,
+      },
+    },
+  },
+      ],
+},
     devOptions: {
       enabled: false,
       navigateFallback: 'index.html',
